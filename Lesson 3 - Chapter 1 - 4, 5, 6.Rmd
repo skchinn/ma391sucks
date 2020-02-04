@@ -1,0 +1,136 @@
+---
+title: "Lesson 3 - Chapter 1 - 4, 5, 6"
+author: "Samantha Chinn"
+date: "1/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, results = "show", fig.show = "show")
+library(tidyverse)
+library(ma391chinn)
+```
+### Problem 4 - Oil Spill
+#### (a)
+```{r}
+s = function(x){(500*(200/r(x+1)))+(18000+(800*(200/r(x+1))))x+}
+```
+
+
+
+
+
+### Problem 5 - Fin Whale
+#### (a)
+What level of effort will maximize the sustained harvest rate?
+##### Step 1: Ask the question
+Variables/Facts:
+  
+* $R$ = growth rate of the fin whale population (per year)
+* $r$ = intrinsic growth rate = $0.08$
+* $K$ = maximum sustainable population = $400,000$
+* $x$ = current population, $x_0$ = $70,000$
+* $H$ = number of whales harvested per year = $0.00001*E*x$
+* $E$ = level of fishing effort in boat-days
+          
+Assumptions:
+            
+* growth rate is constant
+* whale harvest rate only depends on $E$ and $x$
+            
+#####Step 2: Select the modeling approach
+Single Variable Optimization
+          
+#####Step 3: Formulate the model
+```{r}
+## Define the function using boolean statements such as >, <=, == 
+# Given: K=400,000, x=70,000
+x = 70000
+# Define the function
+fW = function(x){(0.08*x*(1-(x/400000)))-(0.00001*E*x)} 
+# Define the derivative
+dfW = function(x){fprime(fW,x)}
+# Define the domain to graph on
+E = seq(3920,3923,1)
+# Plot the function
+plot(E,fW(E),type="o")
+```
+The level of Effort to maximize the sustained harvest rate appears to be around 3921.5.
+```{r}
+# Print the value that I estimate to be the maximum harvest rate.
+print(fW(3921.5))
+```
+The maximum sustained harvest rate is around 157.
+#####Step 4: Solve the model
+```{r}
+# Verify by actually solving the problem using the bisection method
+ans = bisection(dfW,3920.5,3922.5)
+print(ans)
+```
+Because the code found multiple values for when dFw = 0 it cannot plug it into the bisection without giving "Boundary Conditions Not Met". Visually I determine the maximum of fW is E = 3922.0
+          
+```{r}
+# Plug ans back into function to find the minimum cost
+print(fW(3922))
+```
+#####Step 5: Answer the question
+The maximum sustained harvest rate is around 156.9.
+          
+#### (b)
+Examine the sensitivity to the intrinsic growth rate. Consider the optimum level of effort and the resulting population level.
+```{r}
+ans.effort=0
+ans.popn=0
+#ans.cost1 <- na.omit(ans.cost)
+r = seq(0,.15,.01)
+E=3922
+for (i in 1:length(r)){
+## Change r to the variable r[i] to iterate the changing rate  
+  fW = function(x){return((r[i]*x*(1-(x/K)))-(0.00001*E*x))}
+            dfW = function(x){fprime(fW,x)}
+            ans.effort[i] = 156.9
+            ans.popn[i] = fW(ans.effort[i])
+          }
+result = data.frame(rate = r, effort = ans.effort, population = ans.popn)
+print(result)
+```
+As the intrinsic growth rate increases the effort level remains the same and the resulting population increases.
+          
+#### (c)
+Examine the sensitivity to the maximum sustainable population. Consider the optimum level of effort and the resulting population level.
+```{r}
+ans.effort=0
+ans.popn=0
+#ans.cost1 <- na.omit(ans.cost)
+K = seq(0,800000,100000)
+E=3922
+r=0.08
+for (i in 1:length(K)){
+## Change r to the variable r[i] to iterate the changing rate  
+  fW = function(x){return((r*x*(1-(x/K[i])))-(0.00001*E*x))}
+            dfW = function(x){fprime(fW,x)}
+            ans.effort[i] = 156.9
+            ans.popn[i] = fW(ans.effort[i])
+          }
+result = data.frame(maxsust= K, effort = ans.effort, population = ans.popn)
+print(result)
+```
+As the maximum sustainable population increases from 0 to 800,000 the effort level and resulting population remain the same.
+
+### Problem 6 - Whaling
+####(a)
+What level of effort will maximize profit over the long term?
+#####Step 1: Ask the question
+Variables/Facts:
+            
+* $C_whale$ = cost of whaling (dollars/day) = $500$ 
+* $F$ = price of fin whale carcass (dollars) = $6,000$
+            
+Assumptions:
+            
+* cost of whaling and price of fin whale carcass will remain constant
+    
+#####Step 2: Select the modeling approach
+Single Variable Optimization
+          
+#####Step 3: Formulate the model

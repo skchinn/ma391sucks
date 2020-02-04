@@ -1,0 +1,136 @@
+---
+title: "Lesson 3 - Optimization/Step Function"
+author: "Samantha Chinn"
+date: "1/14/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Chapter 1 Problem 4
+## Problem 4(a)
+How many additional crews should be brought in to minimize the total cost to the company? How much will the clean-up cost?
+###Step 1: Ask the question
+Variables/Facts:
+
+* 200 mile oil spill to clean up
+* $x$ = additional crews to hire
+* $d$ = time it takes to clean up (days)
+* $r$ = clean-up rate for a crew (miles/day)
+* $C_1$ = cost of local cleanup crew (dollars) = $500d$
+* $C_2$ = cost of $x$ additional crews (dollars) = $(18000+800d)x$
+* $C_fine$ = cost of fines after 14 days = $10000(d-14)$ if d>14
+* $C$ = total cost of clean-up = $C_1 + C_2 + C_fine$
+
+Assumptions:
+
+* days to complete clean-up are not affected by anything other than the number of crews and the rate (weather, etc): $d = \frac{200}{r(x+1)}$
+* cost for fines are only levied after 14 days - becomes a step function
+* all of the crews clean-up the spill at the same rate as the local crew $r - 5/$ (miles/day)
+
+
+###Step 2: Select the modeling approach
+Single Variable Optimization
+
+###Step 3: Formulate the model
+```{r}
+## Define the function using boolean statements such as >, <=, == 
+# Given: 5 miles of beach per week
+r = 5/7 
+# Define the function
+fT = function(x){500*(200/(r*(x+1)))+(18000+800*200/(r*(x+1)))*x+(200/(r*(x+1))>14)*(10000*(200/(r*(x+1))-14))} 
+# Define the derivative
+dfT = function(x){fprime(fT,x)}
+# Define the domain to graph on
+x = seq(0,20,1)
+# Plot the function
+plot(x,fT(x),type="o")
+```
+The number of additional crews to be brought in to minimize cost appears to be somewhere around 11.
+```{r}
+# Print the value that I estimate to be the minimum cost
+print(fT(11))
+```
+The minimum cost with $x$ crews appears to be around $508,333.30
+###Step 4: Solve the model
+```{r}
+# Verify by actually solving the problem using the bisection method
+## Bisection
+
+bisection = function(f,a,b,tol=0.0001){
+  if (f(a)*f(b) > 0){
+    return ("Boundary Conditions Not Met")
+  }
+  else{
+    middle = a
+    while (abs(f(middle))>tol){
+      middle = (a+b)/2
+      if (f(middle)*f(a)>0) (a = middle)
+      else (b = middle)
+      x=middle
+      y=f(middle)
+      ## if you want to "see" what happens at every step, take off the # of the next line ##
+      #cat(sprintf("x-Val: %.4f ; f(x-val): %.4f\n",x,y))
+    }
+    return (middle)
+  }
+}
+## F-Prime
+fprime = function (f,a,h=0.0001){(f(a+h)-f(a-h))/(2*h)}
+ans = bisection(dfT,0,20)
+print(ans)
+```
+My estimate was right, the number of additional crews for minimum cost is 11.28368.
+```{r}
+# Plug ans back into function to find the minimum cost
+print(fT(ans))
+```
+The minimum cost of the clean-up (with 11 crews) is $508,212.60.
+###Step 5: Answer the question
+Additional Crews: 11.28368  
+Clean-up Cost: $508,212.60
+
+## Problem 4(b)
+Examine the sensitivity to the rate at which a crew can clean up the shoreline, $r$. Consider both the optimal number of crews and the total cost to the company.
+```{r}
+ans.crew=0
+ans.cost=0
+ans.cost1 <- na.omit(ans.cost)
+r = seq(2/7,8/7,1/7)
+for (i in 1:length(r)){
+  ## Change r to the variable r[i] to iterate the changing rate
+  fT = function(x){return(500*(200/(r[i]*(x+1)))+(18000+800*200/(r[i]*(x+1)))*x+(200/(r[i]*(x+1))>14)*(10000*(200/(r[i]*(x+1))-14)))}
+  dfT = function(x){fprime(fT,x)}
+  ans.crew[i] = bisection(dfT,0,20)
+  ans.cost1[i] = fT(ans.crew[i])
+}
+  result = data.frame(rate = r, crew = ans.crew, cost = ans.cost1)
+  print(result)
+```
+As rate increases from $2/7$ to $8/7$ the amount of crew needed decreases as well as the cost. I chose the values for $r$ based on the rate with optimal crew numbers for minimal cost.
+As the rate increases, the crew decreases and the cost decreases.
+## Problem 4(c)
+Examine the sensitivity to the amount of the fine. Consider the number of days the company will take and the total cost to the company.
+```{r}
+ans.days=0
+ans.cost=0
+ans.cost1 <- na.omit(ans.cost)
+f = seq(0,50000,10000)
+for (i in 1:length(f)){
+  ## Change the fine part of the function to the variable f[i] to iterate the changing fines
+  r=5/7
+  fT = function(x){return(500*(200/(r*(x+1)))+(18000+800*200/(r*(x+1)))*x+(200/(r*(x+1))>14)*f[i])}
+  dfT = function(x){fprime(fT,x)}
+  ans.days[i] = bisection(dfT,14,10000)
+  ans.cost1[i] = fT(ans.days[i])
+}
+  result = data.frame(fine = f, days = ans.days, cost = ans.cost1)
+  print(result)
+```
+This code will not run because the derivative of the function will never equal zero. Keep getting an error message.
+
+## Problem 4(d)
+The company thinks the amount of fine is excessive. Assuming the only purpose of the fine is to motivate the clean-up, is the fine excessive?
+I think it is fine, they provide a reasonable amount of time in the first place to get the clean-up done.

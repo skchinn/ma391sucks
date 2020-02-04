@@ -1,0 +1,70 @@
+---
+title: "Lesson 2 - Chapter 1 - 1, 2, 3"
+author: "Samantha Chinn"
+date: "1/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, results = "show", fig.show = "show")
+library(tidyverse)
+library(ma391chinn)
+```
+
+### Problem 1 - Car
+#### (a) What amount of rebate will maximize profit?
+##### Step 1: 
+
+* p = profit on sale model ($1500/car)
+* r = rebate $/car
+* x = rebate scale factor ($100/car)
+* y = sale increase based on rebate (0.15 = 15%)
+* n = number of cars sold
+* P = total profit
+
+##### Step 2: Select the modeling approach
+Single Variable Optimization
+
+##### Step 3: Formulate the model
+f = function(r){(1500-r)*(1+0.15(r/100))}
+df = function(r){fprime(f,r)}
+
+##### Step 4: Solve the model
+r = seq(0,20)
+ans = bisection(df,0,20)
+print(ans)
+print(f(ans))
+
+
+
+
+
+
+### Problem 2 - Pig
+
+* x = time (days)
+
+```{r}
+cost = function(x){(0.65-0.01*x)*(200+7*x)-(0.60*x)}
+dCost = function(x){fprime(cost,x)}
+x = seq(0,20)
+ans = bisection(dCost,0,20)
+print(ans)
+print(cost(ans))
+```
+At x = 13.9 the cost is $143.58.
+
+
+
+
+### Problem 3 - Pig
+#### (a)
+```{r}
+pnew = function(x){0.65-0.01*x+0.00004*x^2}
+plot(cost,col="red")
+plot(pnew,col="blue")
+```
+
+
+
+

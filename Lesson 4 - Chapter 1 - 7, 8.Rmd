@@ -1,0 +1,17 @@
+---
+title: "Lesson 4 - Chapter 1 - 7, 8"
+author: "Samantha Chinn"
+date: "1/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, results = "show", fig.show = "show")
+library(tidyverse)
+library(ma391chinn)
+```
+
+### Problem 7 - Pig
+
+
+### Problem 8 - Pig
